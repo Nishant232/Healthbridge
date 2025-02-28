@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HealthBridge Provider Portal</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+    <div class="flex-container">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-content">
+                <h1 class="header-title">HealthBridge Provider Portal</h1>
+                <div class="user-controls">
+                    <span>{{ session.user.name }}</span>
+                    <a href="{{ url_for('logout') }}" class="logout-btn">Log Out</a>
+                </div>
+            </div>
+        </header>
+        
+        <!-- Patient Info Bar -->
+        <div class="patient-info-bar">
+            <div class="patient-header">
+                <div class="patient-avatar">
+                    <div class="avatar-circle">{{ patient_info.name[:1] }}</div>
+                    <div class="patient-details">
+                        <h2>{{ patient_info.name }}</h2>
+                        <div class="patient-meta">
+                            {{ patient_info.gender }} | DOB: {{ patient_info.dob }} | MRN: {{ patient_info.mrn }}
+                        </div>
+                    </div>
+                </div>
+                <div class="action-buttons">
+                    {% if session.user.role == 'doctor' %}
+                        <a href="#" class="btn-green" onclick="alert('Message feature will be available in the next version.')"><i class="fas fa-comment-medical"></i> Message Care Team</a>
+                        <a href="#" class="btn-blue" onclick="alert('Notes feature will be available in the next version.')"><i class="fas fa-notes-medical"></i> Add Note</a>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <!-- Patient Quick Info -->
+            <div class="quick-info-grid">
+                <div class="info-card blue-card">
+                    <h3>Primary Care</h3>
+                    <p>{{ patient_info.primaryCare }}</p>
+                </div>
+                <div class="info-card blue-card">
+                    <h3>Insurance</h3>
+                    <p>{{ patient_info.insurance }}</p>
+                </div>
+                <div class="info-card red-card">
+                    <h3>Allergies</h3>
+                    <p>{{ patient_info.allergies }}</p>
+                </div>
+                <div class="info-card yellow-card">
+                    <h3>Chronic Conditions</h3>
+                    <p>{{ patient_info.chronicConditions }}</p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Navigation Tabs -->
+        <div class="nav-tabs">
+            <button class="tab-btn active" data-tab="timeline"><i class="fas fa-history"></i> Timeline</button>
+            <button class="tab-btn" data-tab="vitals"><i class="fas fa-heartbeat"></i> Vitals</button>
+            <button class="tab-btn" data-tab="medications"><i class="fas fa-pills"></i> Medications</button>
+            <button class="tab-btn" data-tab="labs"><i class="fas fa-flask"></i> Lab Results</button>
+            <button class="tab-btn" data-tab="imaging"><i class="fas fa-x-ray"></i> Imaging</button>
+        </div>
+        
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Timeline Tab -->
+            <div class="tab-content active" id="timeline-tab">
+                <div class="content-header">
+                    <h2>Patient Timeline</h2>
+                    <div class="filter-control">
+                        <span>Filter by system:</span>
+                        <select id="system-filter">
+                            {% for system in systems %}
+                                <option value="{{ system }}">
+                                    {% if system == 'all' %}All Systems{% else %}{{ system }}{% endif %}
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="timeline-container">
+                    {% for item in timeline_data %}
+                    <div class="timeline-item" data-system="{{ item.system }}">
+                        <div class="timeline-date">
+                            <div class="date-box">{{ item.date }}</div>
+                            <div class="system-tag">{{ item.system }}</div>
+                        </div>
+                        <div class="timeline-content">
+                            <h3>{{ item.event }}</h3>
+                            <p class="timeline-details">{{ item.details }}</p>
+                            <p class="timeline-provider">Provider: {{ item.provider }}</p>
+                        </div>
+                        <div class="timeline-actions">
+                            <button class="view-details-btn" onclick="alert('Details view will be available in the next version.')">View Details</button>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            
+            <!-- Vitals Tab -->
+            <div class="tab-content" id="vitals-tab">
+                <div class="content-header">
+                    <h2>Vitals</h2>
+                    <div class="action-buttons">
+                        {% if session.user.role == 'doctor' %}
+                            <a href="{{ url_for('add_vitals', mrn=patient_info.mrn) }}" class="btn-blue btn-sm"><i class="fas fa-plus"></i> Add New</a>
+                        {% endif %}
+                        <button class="btn-green btn-sm" onclick="alert('Export feature will be available in the next version.')"><i class="fas fa-file-export"></i> Export Data</button>
+                    </div>
+                </div>
+                <div class="table-container">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Blood Pressure</th>
+                                <th>Pulse</th>
+                                <th>Temperature (°F)</th>
+                                <th>Weight (lbs)</th>
+                                <th>Blood Glucose</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for vital in vitals_data %}
+                            <tr>
+                                <td>{{ vital.date }}</td>
+                                <td>{{ vital.bp }}</td>
+                                <td>{{ vital.pulse }}</td>
+                                <td>{{ vital.temp }}</td>
+                                <td>{{ vital.weight }}</td>
+                                <td>{{ vital.glucose }}</td>
+                                <td>
+                                    <button class="action-icon-btn" title="View Details" onclick="alert('Details view will be available in the next version.')"><i class="fas fa-eye"></i></button>
+                                    <button class="action-icon-btn" title="Print" onclick="alert('Print feature will be available in the next version.')"><i class="fas fa-print"></i></button>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <!-- Medications Tab -->
+            <div class="tab-content" id="medications-tab">
+                <div class="content-header">
+                    <h2>Medications</h2>
+                    <div class="action-buttons">
+                        {% if session.user.role == 'doctor' %}
+                            <a href="{{ url_for('prescribe_medication', mrn=patient_info.mrn) }}" class="btn-blue btn-sm"><i class="fas fa-prescription-bottle-alt"></i> Prescribe New</a>
+                        {% endif %}
+                        <button class="btn-green btn-sm" onclick="alert('Export feature will be available in the next version.')"><i class="fas fa-file-export"></i> Export List</button>
+                    </div>
+                </div>
+                
+                <div class="medications-container">
+                    {% for med in medications_data %}
+                    <div class="medication-card">
+                        <div class="medication-header">
+                            <h3>{{ med.name }} <span class="medication-dosage">{{ med.dosage }}</span></h3>
+                            <span class="medication-status {{ 'status-active' if med.status == 'Active' else 'status-inactive' }}">
+                                {{ med.status }}
+                            </span>
+                        </div>
+                        <div class="medication-details">
+                            <div class="med-detail">
+                                <span class="detail-label"><i class="fas fa-clock"></i> Frequency:</span>
+                                <span class="detail-value">{{ med.frequency }}</span>
+                            </div>
+                            <div class="med-detail">
+                                <span class="detail-label"><i class="fas fa-calendar-alt"></i> Prescribed:</span>
+                                <span class="detail-value">{{ med.prescribed }}</span>
+                            </div>
+                            <div class="med-detail">
+                                <span class="detail-label"><i class="fas fa-user-md"></i> Prescriber:</span>
+                                <span class="detail-value">{{ med.prescriber }}</span>
+                            </div>
+                            <div class="med-detail">
+                                <span class="detail-label"><i class="fas fa-redo"></i> Refills:</span>
+                                <span class="detail-value">{{ med.refills }}</span>
+                            </div>
+                            <div class="med-detail">
+                                <span class="detail-label"><i class="fas fa-mortar-pestle"></i> Pharmacy:</span>
+                                <span class="detail-value">{{ med.pharmacy }}</span>
+                            </div>
+                            {% if med.notes %}
+                            <div class="med-detail med-notes">
+                                <span class="detail-label"><i class="fas fa-sticky-note"></i> Notes:</span>
+                                <span class="detail-value">{{ med.notes }}</span>
+                            </div>
+                            {% endif %}
+                        </div>
+                        <div class="medication-actions">
+                            <button class="med-action-btn" onclick="alert('Refill feature will be available in the next version.')"><i class="fas fa-sync-alt"></i> Refill</button>
+                            <button class="med-action-btn" onclick="alert('Edit feature will be available in the next version.')"><i class="fas fa-pen"></i> Edit</button>
+                            <button class="med-action-btn" onclick="alert('Discontinue feature will be available in the next version.')"><i class="fas fa-times-circle"></i> Discontinue</button>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            
+            <!-- Lab Results Tab -->
+            <div class="tab-content" id="labs-tab">
+                <div class="content-header">
+                    <h2>Lab Results</h2>
+                    <div class="filter-control">
+                        <span>Filter by date:</span>
+                        <select id="lab-date-filter">
+                            <option value="all">All Dates</option>
+                            {% set dates = [] %}
+                            {% for lab in lab_results_data %}
+                                {% if lab.date not in dates %}
+                                    {% set dates = dates + [lab.date] %}
+                                    <option value="{{ lab.date }}">{{ lab.date }}</option>
+                                {% endif %}
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="table-container">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Test</th>
+                                <th>Result</th>
+                                <th>Reference Range</th>
+                                <th>Status</th>
+                                <th>Ordering Provider</th>
+                                <th>Lab</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for lab in lab_results_data %}
+                            <tr class="lab-result-row" data-date="{{ lab.date }}">
+                                <td>{{ lab.date }}</td>
+                                <td>{{ lab.test }}</td>
+                                <td>{{ lab.result }}</td>
+                                <td>{{ lab.reference }}</td>
+                                <td class="lab-status {{ 'status-normal' if lab.status == 'Normal' else 'status-abnormal' }}">
+                                    {{ lab.status }}
+                                </td>
+                                <td>{{ lab.ordering_provider }}</td>
+                                <td>{{ lab.lab }}</td>
+                                <td>
+                                    <button class="action-icon-btn" title="View Details" onclick="alert('Details view will be available in the next version.')"><i class="fas fa-eye"></i></button>
+                                    <button class="action-icon-btn" title="Show Trends" onclick="alert('Trends view will be available in the next version.')"><i class="fas fa-chart-line"></i></button>
+                                    <button class="action-icon-btn" title="Print" onclick="alert('Print feature will be available in the next version.')"><i class="fas fa-print"></i></button>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <!-- Imaging Tab -->
+            <div class="tab-content" id="imaging-tab">
+                <div class="content-header">
+                    <h2>Imaging</h2>
+                    <div class="action-buttons">
+                        <button class="btn-blue btn-sm" onclick="alert('Order New feature will be available in the next version.')"><i class="fas fa-file-medical"></i> Order New</button>
+                        <button class="btn-green btn-sm" onclick="alert('Export feature will be available in the next version.')"><i class="fas fa-file-export"></i> Export Results</button>
+                    </div>
+                </div>
+                
+                <div class="imaging-container">
+                    {% for image in imaging_data %}
+                    <div class="imaging-card">
+                        <div class="imaging-header">
+                            <div class="imaging-title">
+                                <h3>{{ image.type }}</h3>
+                                <span class="imaging-date">{{ image.date }}</span>
+                            </div>
+                            <div class="imaging-result {{ 'result-normal' if image.result == 'Normal' else 'result-abnormal' }}">
+                                {{ image.result }}
+                            </div>
+                        </div>
+                        <div class="imaging-details">
+                            <div class="img-detail">
+                                <span class="detail-label">Reason:</span>
+                                <span class="detail-value">{{ image.reason }}</span>
+                            </div>
+                            <div class="img-detail">
+                                <span class="detail-label">Radiologist:</span>
+                                <span class="detail-value">{{ image.radiologist }}</span>
+                            </div>
+                            <div class="img-detail">
+                                <span class="detail-label">Facility:</span>
+                                <span class="detail-value">{{ image.facility }}</span>
+                            </div>
+                            <div class="img-detail">
+                                <span class="detail-label">Notes:</span>
+                                <span class="detail-value">{{ image.notes }}</span>
+                            </div>
+                            <div class="img-detail">
+                                <span class="detail-label">Comparison:</span>
+                                <span class="detail-value">{{ image.comparison }}</span>
+                            </div>
+                        </div>
+                        <div class="imaging-actions">
+                            <button class="img-action-btn" onclick="alert('View Images feature will be available in the next version.')"><i class="fas fa-eye"></i> View Images</button>
+                            <button class="img-action-btn" onclick="alert('Full Report feature will be available in the next version.')"><i class="fas fa-file-alt"></i> Full Report</button>
+                            <button class="img-action-btn" onclick="alert('Print feature will be available in the next version.')"><i class="fas fa-print"></i> Print</button>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </main>
+        
+        <!-- Footer -->
+        <footer class="footer">
+            HealthBridge Interoperability Platform v1.0 | © 2025
+        </footer>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Tab switching functionality
+            const tabButtons = document.querySelectorAll('.tab-btn');
+            const tabContents = document.querySelectorAll('.tab-content');
+            
+            tabButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    // Remove active class from all buttons and content tabs
+                    tabButtons.forEach(btn => btn.classList.remove('active'));
+                    tabContents.forEach(content => content.classList.remove('active'));
+                    
+                    // Add active class to clicked button
+                    this.classList.add('active');
+                    
+                    // Show corresponding content
+                    const tabId = this.getAttribute('data-tab');
+                    document.getElementById(tabId + '-tab').classList.add('active');
+                });
+            });
+            
+            // System filter functionality
+            const systemFilter = document.getElementById('system-filter');
+            const timelineItems = document.querySelectorAll('.timeline-item');
+            
+            systemFilter.addEventListener('change', function() {
+                const selectedSystem = this.value;
+                
+                if (selectedSystem === 'all') {
+                    // Show all timeline items
+                    timelineItems.forEach(item => {
+                        item.style.display = 'flex';
+                    });
+                } else {
+                    // Filter timeline items
+                    timelineItems.forEach(item => {
+                        const itemSystem = item.getAttribute('data-system');
+                        if (itemSystem === selectedSystem) {
+                            item.style.display = 'flex';
+                        } else {
+                            item.style.display = 'none';
+                        }
+                    });
+                }
+            });
+            
+            // Lab date filter functionality
+            const labDateFilter = document.getElementById('lab-date-filter');
+            if (labDateFilter) {
+                const labResultRows = document.querySelectorAll('.lab-result-row');
+                
+                labDateFilter.addEventListener('change', function() {
+                    const selectedDate = this.value;
+                    
+                    if (selectedDate === 'all') {
+                        // Show all lab results
+                        labResultRows.forEach(row => {
+                            row.style.display = 'table-row';
+                        });
+                    } else {
+                        // Filter lab results by date
+                        labResultRows.forEach(row => {
+                            const rowDate = row.getAttribute('data-date');
+                            if (rowDate === selectedDate) {
+                                row.style.display = 'table-row';
+                            } else {
+                                row.style.display = 'none';
+                            }
+                        });
+                    }
+                });
+            }
+        });
+    </script>
+</body>
+</html>

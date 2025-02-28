@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login & Signup</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: #f5f5f5;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .container {
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 800px;
+            display: flex;
+            overflow: hidden;
+        }
+
+        .form-container {
+            padding: 40px;
+            flex: 1;
+        }
+
+        .image-container {
+            flex: 1;
+            background: linear-gradient(135deg, #6e8efb, #a777e3);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            font-size: 2rem;
+            text-align: center;
+            padding: 20px;
+        }
+
+        h2 {
+            margin-bottom: 20px;
+            color: #333;
+            text-align: center;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        input,
+        select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 1rem;
+            transition: border-color 0.3s;
+        }
+
+        input:focus,
+        select:focus {
+            border-color: #a777e3;
+            outline: none;
+        }
+
+        button {
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(135deg, #6e8efb, #a777e3);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: opacity 0.3s;
+        }
+
+        button:hover {
+            opacity: 0.9;
+        }
+
+        .form-footer {
+            text-align: center;
+            margin-top: 20px;
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        .form-footer a {
+            color: #a777e3;
+            text-decoration: none;
+        }
+
+        .tabs {
+            display: flex;
+            margin-bottom: 20px;
+        }
+
+        .tab {
+            flex: 1;
+            text-align: center;
+            padding: 10px;
+            cursor: pointer;
+            color: #666;
+            border-bottom: 2px solid transparent;
+        }
+
+        .tab.active {
+            color: #a777e3;
+            border-bottom: 2px solid #a777e3;
+        }
+
+        #signup-form {
+            display: none;
+        }
+
+        #doctor-fields,
+        #health-org-fields {
+            display: none;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                flex-direction: column;
+            }
+
+            .image-container {
+                display: none;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="form-container">
+            <!-- Login Form - Updated IDs to match login.js -->
+            <form id="loginForm">
+                <h2>Welcome to HealthBridge</h2>
+                <div class="form-group">
+                    <label for="email">Email</label>
+                    <input type="email" id="email" name="email" required>
+                </div>
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" name="password" required>
+                </div>
+                <div class="form-group">
+                    <button type="submit">Login</button>
+                </div>
+                <div class="form-footer">
+                    <a href="#" id="showSignup">Don't have an account? Sign up</a>
+                </div>
+            </form>
+
+            <!-- Signup Form - Updated IDs to match login.js -->
+            <div id="signupCard" style="display: none;">
+                <form id="signupForm">
+                    <h2>Create Account</h2>
+                    <div class="form-group">
+                        <label for="role">Account Type</label>
+                        <select id="role" name="role" required>
+                            <option value="">Select Account Type</option>
+                            <option value="patient">Patient</option>
+                            <option value="doctor">Doctor</option>
+                            <option value="health-org">Health Organization</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="name">Full Name</label>
+                        <input type="text" id="name" name="name" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="signupEmail">Email</label>
+                        <input type="email" id="signupEmail" name="email" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="signupPassword">Password</label>
+                        <input type="password" id="signupPassword" name="password" required>
+                    </div>
+
+                    <!-- Doctor Fields -->
+                    <div id="doctorFields" style="display: none;">
+                        <div class="form-group">
+                            <label for="license">Medical License Number</label>
+                            <input type="text" id="license" name="license">
+                        </div>
+                        <div class="form-group">
+                            <label for="registrationYear">Registration Year</label>
+                            <input type="number" id="registrationYear" name="registrationYear" 
+                                   min="1900" max="2025">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <button type="submit">Create Account</button>
+                    </div>
+                    <div class="form-footer">
+                        <a href="#" id="showLogin">Already have an account? Login</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <div class="image-container">
+            <div>
+                <h2>Welcome to HealthBridge</h2>
+                <p>Connecting Healthcare Professionals with Patients</p>
+                <p>Secure • Reliable • Efficient</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Flask template syntax for JavaScript -->
+    <script src="{{ url_for('static', filename='js/login.js') }}"></script>
+</body>
+</html>

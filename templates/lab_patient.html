@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Patient Lab Results - HealthBridge</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        .back-btn {
+            display: inline-block;
+            margin-bottom: 20px;
+            color: #1a56db;
+            text-decoration: none;
+        }
+        
+        .back-btn i {
+            margin-right: 5px;
+        }
+        
+        .patient-header {
+            background-color: white;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .patient-basic-info h2 {
+            margin-top: 0;
+            margin-bottom: 5px;
+        }
+        
+        .patient-details {
+            color: #6b7280;
+            font-size: 14px;
+        }
+        
+        .action-btn {
+            background-color: #1a56db;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        
+        .action-btn i {
+            margin-right: 5px;
+        }
+        
+        .action-btn:hover {
+            background-color: #1e429f;
+        }
+        
+        .lab-results-table {
+            width: 100%;
+            border-collapse: collapse;
+            background-color: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        
+        .lab-results-table th, .lab-results-table td {
+            padding: 12px 15px;
+            text-align: left;
+        }
+        
+        .lab-results-table th {
+            background-color: #f9fafb;
+            font-weight: 600;
+        }
+        
+        .lab-results-table tr:not(:last-child) {
+            border-bottom: 1px solid #e5e7eb;
+        }
+        
+        .lab-results-table tr:hover {
+            background-color: #f9fafb;
+        }
+        
+        .result-normal {
+            background-color: #c6f6d5;
+            color: #276749;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        
+        .result-abnormal {
+            background-color: #fed7d7;
+            color: #9b2c2c;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        
+        .add-result-card {
+            background-color: white;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .add-result-card h3 {
+            margin-top: 0;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+        }
+        
+        .form-control {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #d1d5db;
+            border-radius: 4px;
+        }
+        
+        .form-control:focus {
+            outline: none;
+            border-color: #1a56db;
+            box-shadow: 0 0 0 2px rgba(26, 86, 219, 0.2);
+        }
+        
+        .submit-btn {
+            background-color: #1a56db;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-top: 10px;
+        }
+        
+        .submit-btn i {
+            margin-right: 5px;
+        }
+        
+        .submit-btn:hover {
+            background-color: #1e429f;
+        }
+    </style>
+</head>
+<body>
+    <div class="flex-container">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-content">
+                <h1 class="header-title">HealthBridge Lab Portal</h1>
+                <div class="user-controls">
+                    <span>{{ lab_tech.name }}</span>
+                    <button class="logout-btn" onclick="window.location.href='/logout'">Log Out</button>
+                </div>
+            </div>
+        </header>
+        
+        <main class="main-content">
+            <a href="{{ url_for('lab_dashboard') }}" class="back-btn">
+                <i class="fas fa-arrow-left"></i> Back to Dashboard
+            </a>
+            
+            <div class="patient-header">
+                <div class="patient-basic-info">
+                    <h2>{{ patient_info.name }}</h2>
+                    <div class="patient-details">
+                        MRN: {{ patient_info.mrn }} | DOB: {{ patient_info.dob }} | Gender: {{ patient_info.gender }}
+                    </div>
+                </div>
+                <div>
+                    <button class="action-btn" onclick="toggleAddResultForm()">
+                        <i class="fas fa-plus"></i> Add New Result
+                    </button>
+                </div>
+            </div>
+            
+            <div id="add-result-form" class="add-result-card" style="display: none;">
+                <h3>Add New Lab Result</h3>
+                <form action="{{ url_for('add_lab_result') }}" method="POST">
+                    <input type="hidden" name="mrn" value="{{ patient_info.mrn }}">
+                    
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="test">Test Name</label>
+                            <input type="text" id="test" name="test" class="form-control" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="date">Test Date</label>
+                            <input type="date" id="date" name="date" class="form-control" value="{{ today_date }}" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="result">Result</label>
+                            <input type="text" id="result" name="result" class="form-control" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="reference">Reference Range</label>
+                            <input type="text" id="reference" name="reference" class="form-control" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="status">Status</label>
+                            <select id="status" name="status" class="form-control" required>
+                                <option value="Normal">Normal</option>
+                                <option value="Abnormal">Abnormal</option>
+                                <option value="Critical">Critical</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="ordering_provider">Ordering Provider</label>
+                            <input type="text" id="ordering_provider" name="ordering_provider" class="form-control" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="lab">Lab Name</label>
+                            <input type="text" id="lab" name="lab" class="form-control" value="HealthBridge Laboratory" required>
+                        </div>
+                    </div>
+                    
+                    <button type="submit" class="submit-btn">
+                        <i class="fas fa-save"></i> Save Result
+                    </button>
+                </form>
+            </div>
+            
+            <h2>Lab Results History</h2>
+            
+            <table class="lab-results-table">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Test</th>
+                        <th>Result</th>
+                        <th>Reference Range</th>
+                        <th>Status</th>
+                        <th>Ordering Provider</th>
+                        <th>Created By</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for result in lab_results %}
+                    <tr>
+                        <td>{{ result.date }}</td>
+                        <td>{{ result.test }}</td>
+                        <td>{{ result.result }}</td>
+                        <td>{{ result.reference }}</td>
+                        <td>
+                            <span class="result-{{ result.status|lower }}">{{ result.status }}</span>
+                        </td>
+                        <td>{{ result.ordering_provider }}</td>
+                        <td>{{ result.created_by }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </main>
+        
+        <!-- Footer -->
+        <footer class="footer">
+            HealthBridge Interoperability Platform v1.0 | © 2025
+        </footer>
+    </div>
+
+    <script>
+        function toggleAddResultForm() {
+            const form = document.getElementById('add-result-form');
+            form.style.display = form.style.display === 'none' ? 'block' : 'none';
+        }
+        
+        // Set today's date in date field by default
+        document.addEventListener('DOMContentLoaded', function() {
+            const today = new Date();
+            const dateField = document.getElementById('date');
+            if (dateField && !dateField.value) {
+                dateField.value = today.toISOString().substr(0, 10);
+            }
+        });
+    </script>
+</body>
+</html>

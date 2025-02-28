@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit User - HealthBridge Admin</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        .back-btn {
+            display: inline-block;
+            margin-bottom: 20px;
+            color: #1a56db;
+            text-decoration: none;
+        }
+        
+        .back-btn i {
+            margin-right: 5px;
+        }
+        
+        .form-card {
+            background-color: white;
+            border-radius: 8px;
+            padding: 30px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+        
+        .form-control {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #d1d5db;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+        
+        .form-control:focus {
+            outline: none;
+            border-color: #1a56db;
+            box-shadow: 0 0 0 2px rgba(26, 86, 219, 0.2);
+        }
+        
+        .conditional-fields {
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
+        }
+        
+        .submit-btn {
+            background-color: #1a56db;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 4px;
+            font-size: 16px;
+            cursor: pointer;
+            width: 100%;
+        }
+        
+        .submit-btn:hover {
+            background-color: #1e429f;
+        }
+        
+        .password-section {
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
+        }
+        
+        .password-section h3 {
+            margin-top: 0;
+            margin-bottom: 15px;
+        }
+        
+        .section-note {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 15px;
+        }
+    </style>
+</head>
+<body>
+    <div class="flex-container">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-content">
+                <h1 class="header-title">HealthBridge Admin Dashboard</h1>
+                <div class="user-controls">
+                    <button class="logout-btn" onclick="window.location.href='/logout'">Log Out</button>
+                </div>
+            </div>
+        </header>
+        
+        <main class="main-content">
+            <a href="{{ url_for('admin_users') }}" class="back-btn">
+                <i class="fas fa-arrow-left"></i> Back to User Management
+            </a>
+            
+            <h1>Edit User: {{ user.name }}</h1>
+            
+            <div class="form-card">
+                <form action="{{ url_for('admin_edit_user', user_id=user.id) }}" method="POST">
+                    <div class="form-group">
+                        <label for="role">User Role</label>
+                        <select id="role" name="role" class="form-control" required>
+                            <option value="admin" {% if user.role == 'admin' %}selected{% endif %}>Administrator</option>
+                            <option value="doctor" {% if user.role == 'doctor' %}selected{% endif %}>Doctor</option>
+                            <option value="lab" {% if user.role == 'lab' %}selected{% endif %}>Lab Technician</option>
+                            <option value="patient" {% if user.role == 'patient' %}selected{% endif %}>Patient</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="name">Full Name</label>
+                        <input type="text" id="name" name="name" class="form-control" value="{{ user.name }}" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="email">Email Address</label>
+                        <input type="email" id="email" name="email" class="form-control" value="{{ user.email }}" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="status">Account Status</label>
+                        <select id="status" name="status" class="form-control" required>
+                            <option value="active" {% if user.status == 'active' %}selected{% endif %}>Active</option>
+                            <option value="inactive" {% if user.status == 'inactive' %}selected{% endif %}>Inactive</option>
+                        </select>
+                    </div>
+                    
+                    <!-- Conditional fields for doctor -->
+                    <div id="doctor-fields" class="conditional-fields" {% if user.role != 'doctor' %}style="display: none;"{% endif %}>
+                        <div class="form-group">
+                            <label for="license">Medical License Number</label>
+                            <input type="text" id="license" name="license" class="form-control" value="{{ user.license if user.license else '' }}">
+                        </div>
+                        <div class="form-group">
+                            <label for="year">Registration Year</label>
+                            <input type="number" id="year" name="year" min="1900" max="2025" class="form-control" value="{{ user.year if user.year else '' }}">
+                        </div>
+                    </div>
+                    
+                    <!-- Conditional fields for lab tech -->
+                    <div id="lab-fields" class="conditional-fields" {% if user.role != 'lab' %}style="display: none;"{% endif %}>
+                        <div class="form-group">
+                            <label for="license">Lab Technician License</label>
+                            <input type="text" id="license" name="license" class="form-control" value="{{ user.license if user.license else '' }}">
+                        </div>
+                    </div>
+                    
+                    <!-- Password change section -->
+                    <div class="password-section">
+                        <h3>Change Password</h3>
+                        <p class="section-note">Leave blank to keep the current password</p>
+                        <div class="form-group">
+                            <label for="password">New Password</label>
+                            <input type="password" id="password" name="password" class="form-control">
+                        </div>
+                    </div>
+                    
+                    <button type="submit" class="submit-btn">Update User</button>
+                </form>
+            </div>
+        </main>
+        
+        <!-- Footer -->
+        <footer class="footer">
+            HealthBridge Interoperability Platform v1.0 | © 2025
+        </footer>
+    </div>
+
+    <script>
+        // Show/hide conditional fields based on role selection
+        document.getElementById('role').addEventListener('change', function() {
+            const role = this.value;
+            const doctorFields = document.getElementById('doctor-fields');
+            const labFields = document.getElementById('lab-fields');
+            
+            // Hide all conditional fields first
+            doctorFields.style.display = 'none';
+            labFields.style.display = 'none';
+            
+            // Show fields based on selected role
+            if (role === 'doctor') {
+                doctorFields.style.display = 'block';
+            } else if (role === 'lab') {
+                labFields.style.display = 'block';
+            }
+        });
+    </script>
+</body>
+</html>

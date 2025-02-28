@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Management - HealthBridge Admin</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        .back-btn {
+            display: inline-block;
+            margin-bottom: 20px;
+            color: #1a56db;
+            text-decoration: none;
+        }
+        
+        .back-btn i {
+            margin-right: 5px;
+        }
+        
+        .user-table {
+            width: 100%;
+            border-collapse: collapse;
+            background-color: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .user-table th, .user-table td {
+            padding: 12px 15px;
+            text-align: left;
+        }
+        
+        .user-table th {
+            background-color: #f9fafb;
+            font-weight: 600;
+        }
+        
+        .user-table tr:not(:last-child) {
+            border-bottom: 1px solid #e5e7eb;
+        }
+        
+        .user-table tr:hover {
+            background-color: #f9fafb;
+        }
+        
+        .action-icon {
+            color: #1a56db;
+            margin-right: 10px;
+            cursor: pointer;
+        }
+        
+        .user-role {
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+        
+        .role-admin {
+            background-color: #fed7d7;
+            color: #9b2c2c;
+        }
+        
+        .role-doctor {
+            background-color: #c6f6d5;
+            color: #276749;
+        }
+        
+        .role-lab {
+            background-color: #bee3f8;
+            color: #2b6cb0;
+        }
+        
+        .role-patient {
+            background-color: #e9d8fd;
+            color: #553c9a;
+        }
+        
+        .user-status {
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        
+        .status-active {
+            background-color: #c6f6d5;
+            color: #276749;
+        }
+        
+        .status-inactive {
+            background-color: #fed7d7;
+            color: #9b2c2c;
+        }
+        
+        .add-user-btn {
+            display: inline-block;
+            background-color: #1a56db;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 4px;
+            text-decoration: none;
+            margin-bottom: 20px;
+        }
+        
+        .add-user-btn i {
+            margin-right: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="flex-container">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-content">
+                <h1 class="header-title">HealthBridge Admin Dashboard</h1>
+                <div class="user-controls">
+                    <button class="logout-btn" onclick="window.location.href='/logout'">Log Out</button>
+                </div>
+            </div>
+        </header>
+        
+        <main class="main-content">
+            <a href="{{ url_for('admin_dashboard') }}" class="back-btn">
+                <i class="fas fa-arrow-left"></i> Back to Dashboard
+            </a>
+            
+            <h1>User Management</h1>
+            
+            <a href="{{ url_for('admin_add_user') }}" class="add-user-btn">
+                <i class="fas fa-user-plus"></i> Add New User
+            </a>
+            
+            <table class="user-table">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Role</th>
+                        <th>MRN/ID</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for user in users %}
+                    <tr>
+                        <td>{{ user.name }}</td>
+                        <td>{{ user.email }}</td>
+                        <td>
+                            <span class="user-role role-{{ user.role }}">{{ user.role }}</span>
+                        </td>
+                        <td>{{ user.mrn }}</td>
+                        <td>
+                            <span class="user-status status-{{ user.status }}">{{ user.status }}</span>
+                        </td>
+                        <td>
+                            <a href="{{ url_for('admin_edit_user', user_id=user.id) }}" class="action-icon" title="Edit">
+                                <i class="fas fa-edit"></i>
+                            </a>
+                            <a href="{{ url_for('admin_delete_user', user_id=user.id) }}" class="action-icon" title="Delete" 
+                               onclick="return confirm('Are you sure you want to deactivate this user?');">
+                                <i class="fas fa-trash-alt"></i>
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </main>
+        
+        <!-- Footer -->
+        <footer class="footer">
+            HealthBridge Interoperability Platform v1.0 | © 2025
+        </footer>
+    </div>
+</body>
+</html>

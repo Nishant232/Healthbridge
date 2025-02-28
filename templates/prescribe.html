@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prescribe Medication - HealthBridge</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        .back-btn {
+            display: inline-block;
+            margin-bottom: 20px;
+            color: #1a56db;
+            text-decoration: none;
+        }
+        
+        .back-btn i {
+            margin-right: 5px;
+        }
+        
+        .prescription-card {
+            background-color: white;
+            border-radius: 8px;
+            padding: 30px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        .patient-header {
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        
+        .patient-header h2 {
+            margin-top: 0;
+            margin-bottom: 5px;
+        }
+        
+        .patient-meta {
+            color: #6b7280;
+            font-size: 14px;
+        }
+        
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group.full-width {
+            grid-column: span 2;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+        
+        .form-control {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #d1d5db;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+        
+        .form-control:focus {
+            outline: none;
+            border-color: #1a56db;
+            box-shadow: 0 0 0 2px rgba(26, 86, 219, 0.2);
+        }
+        
+        textarea.form-control {
+            min-height: 100px;
+            resize: vertical;
+        }
+        
+        .submit-btn {
+            background-color: #1a56db;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 4px;
+            font-size: 16px;
+            cursor: pointer;
+            display: block;
+            width: 100%;
+            margin-top: 20px;
+        }
+        
+        .submit-btn:hover {
+            background-color: #1e429f;
+        }
+        
+        .prescription-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .rx-symbol {
+            font-size: 36px;
+            font-weight: bold;
+            color: #1a56db;
+        }
+    </style>
+</head>
+<body>
+    <div class="flex-container">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-content">
+                <h1 class="header-title">HealthBridge Provider Portal</h1>
+                <div class="user-controls">
+                    <button class="logout-btn" onclick="window.location.href='/logout'">Log Out</button>
+                </div>
+            </div>
+        </header>
+        
+        <main class="main-content">
+            <a href="{{ url_for('patient', mrn=patient.mrn) }}" class="back-btn">
+                <i class="fas fa-arrow-left"></i> Back to Patient Record
+            </a>
+            
+            <div class="prescription-card">
+                <div class="prescription-header">
+                    <h1>Prescribe Medication</h1>
+                    <div class="rx-symbol">℞</div>
+                </div>
+                
+                <div class="patient-header">
+                    <h2>{{ patient.name }}</h2>
+                    <div class="patient-meta">
+                        MRN: {{ patient.mrn }} | DOB: {{ patient.dob }} | Gender: {{ patient.gender }}
+                    </div>
+                </div>
+                
+                <form action="{{ url_for('prescribe_medication', mrn=patient.mrn) }}" method="POST">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="medication">Medication Name</label>
+                            <input type="text" id="medication" name="medication" class="form-control" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="dosage">Dosage</label>
+                            <input type="text" id="dosage" name="dosage" class="form-control" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="frequency">Frequency</label>
+                            <input type="text" id="frequency" name="frequency" class="form-control" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="refills">Refills</label>
+                            <input type="number" id="refills" name="refills" min="0" max="12" class="form-control" value="0" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="pharmacy">Preferred Pharmacy</label>
+                            <input type="text" id="pharmacy" name="pharmacy" class="form-control">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="duration">Duration</label>
+                            <input type="text" id="duration" name="duration" class="form-control" placeholder="e.g., 30 days">
+                        </div>
+                        
+                        <div class="form-group full-width">
+                            <label for="notes">Special Instructions/Notes</label>
+                            <textarea id="notes" name="notes" class="form-control"></textarea>
+                        </div>
+                    </div>
+                    
+                    <button type="submit" class="submit-btn">Prescribe Medication</button>
+                </form>
+            </div>
+        </main>
+        
+        <!-- Footer -->
+        <footer class="footer">
+            HealthBridge Interoperability Platform v1.0 | © 2025
+        </footer>
+    </div>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Add medication suggestions
+            const commonMedications = [
+                "Lisinopril", "Metformin", "Atorvastatin", "Levothyroxine", "Amlodipine",
+                "Metoprolol", "Albuterol", "Omeprazole", "Losartan", "Gabapentin"
+            ];
+            
+            const medicationInput = document.getElementById('medication');
+            
+            medicationInput.addEventListener('focus', function() {
+                const datalist = document.createElement('datalist');
+                datalist.id = 'medication-suggestions';
+                
+                commonMedications.forEach(med => {
+                    const option = document.createElement('option');
+                    option.value = med;
+                    datalist.appendChild(option);
+                });
+                
+                document.body.appendChild(datalist);
+                medicationInput.setAttribute('list', 'medication-suggestions');
+            });
+        });
+    </script>
+</body>
+</html>

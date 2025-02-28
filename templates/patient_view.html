@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Health Record - HealthBridge</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        .timeline {
+            position: relative;
+            padding: 20px 0;
+        }
+        
+        .timeline-item {
+            position: relative;
+            padding: 15px 0 15px 40px;
+            border-left: 2px solid #dee2e6;
+            margin-left: 20px;
+        }
+        
+        .timeline-item:before {
+            content: "";
+            position: absolute;
+            left: -10px;
+            top: 20px;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background-color: #6c757d;
+            border: 2px solid #fff;
+        }
+        
+        .timeline-date {
+            font-weight: bold;
+            margin-bottom: 5px;
+            color: #495057;
+        }
+        
+        .timeline-content {
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: 4px;
+        }
+        
+        .timeline-content h5 {
+            margin-top: 0;
+            color: #212529;
+        }
+        
+        .timeline-content small {
+            display: block;
+            margin-top: 10px;
+            color: #6c757d;
+        }
+        
+        .user-name {
+            margin-right: 15px;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <div class="flex-container">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-content">
+                <h1 class="header-title">HealthBridge Patient Portal</h1>
+                <div class="user-controls">
+                    <span class="user-name">{{ patient_info.name }}</span>
+                    <button class="logout-btn" onclick="window.location.href='/logout'">Log Out</button>
+                </div>
+            </div>
+        </header>
+        
+        <div class="container my-4">
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="card mb-4">
+                        <div class="card-header bg-primary text-white">
+                            <h4>My Health Information</h4>
+                        </div>
+                        <div class="card-body">
+                            <h5>Personal Information</h5>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <p><strong>Name:</strong> {{ patient_info.name }}</p>
+                                    <p><strong>Date of Birth:</strong> {{ patient_info.dob }}</p>
+                                    <p><strong>Gender:</strong> {{ patient_info.gender }}</p>
+                                </div>
+                                <div class="col-md-6">
+                                    <p><strong>MRN:</strong> {{ patient_info.mrn }}</p>
+                                    <p><strong>Primary Care Provider:</strong> {{ patient_info.primaryCare }}</p>
+                                    <p><strong>Allergies:</strong> {{ patient_info.allergies }}</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Vitals Information -->
+                    <div class="card mb-4">
+                        <div class="card-header bg-info text-white">
+                            <h4>Recent Vitals</h4>
+                        </div>
+                        <div class="card-body">
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>Date</th>
+                                        <th>Blood Pressure</th>
+                                        <th>Heart Rate</th>
+                                        <th>Temperature</th>
+                                        <th>Weight (lbs)</th>
+                                        <th>Blood Glucose</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for vital in vitals_data %}
+                                    <tr>
+                                        <td>{{ vital.date }}</td>
+                                        <td>{{ vital.bp }}</td>
+                                        <td>{{ vital.pulse }}</td>
+                                        <td>{{ vital.temp }}°F</td>
+                                        <td>{{ vital.weight }}</td>
+                                        <td>{{ vital.glucose if vital.glucose else 'N/A' }}</td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    
+                    <!-- Medications Information -->
+                    <div class="card mb-4">
+                        <div class="card-header bg-success text-white">
+                            <h4>Current Medications</h4>
+                        </div>
+                        <div class="card-body">
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>Medication</th>
+                                        <th>Dosage</th>
+                                        <th>Frequency</th>
+                                        <th>Prescribed By</th>
+                                        <th>Start Date</th>
+                                        <th>Refills</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for med in medications_data %}
+                                    <tr>
+                                        <td>{{ med.name }}</td>
+                                        <td>{{ med.dosage }}</td>
+                                        <td>{{ med.frequency }}</td>
+                                        <td>{{ med.prescriber }}</td>
+                                        <td>{{ med.prescribed }}</td>
+                                        <td>{{ med.refills }}</td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    
+                    <!-- Lab Results -->
+                    <div class="card mb-4">
+                        <div class="card-header bg-warning">
+                            <h4>Recent Lab Results</h4>
+                        </div>
+                        <div class="card-body">
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>Date</th>
+                                        <th>Test</th>
+                                        <th>Result</th>
+                                        <th>Reference Range</th>
+                                        <th>Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for lab in lab_results_data %}
+                                    <tr>
+                                        <td>{{ lab.date }}</td>
+                                        <td>{{ lab.test }}</td>
+                                        <td>{{ lab.result }}</td>
+                                        <td>{{ lab.reference }}</td>
+                                        <td>
+                                            <span class="badge {% if lab.status == 'Normal' %}badge-success{% else %}badge-danger{% endif %}">
+                                                {{ lab.status }}
+                                            </span>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    
+                    <!-- Healthcare Timeline -->
+                    <div class="card mb-4">
+                        <div class="card-header bg-secondary text-white">
+                            <h4>Healthcare Timeline</h4>
+                        </div>
+                        <div class="card-body">
+                            <div class="timeline">
+                                {% for item in timeline_data %}
+                                <div class="timeline-item">
+                                    <div class="timeline-date">{{ item.date }}</div>
+                                    <div class="timeline-content">
+                                        <h5>{{ item.event }}</h5>
+                                        <p>{{ item.details }}</p>
+                                        <small>{{ item.provider }} ({{ item.system }})</small>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Footer -->
+        <footer class="footer">
+            HealthBridge Interoperability Platform v1.0 | © 2025
+        </footer>
+    </div>
+    
+    <script>
+        // Add active class to timeline items when they come into view
+        document.addEventListener('DOMContentLoaded', function() {
+            const timelineItems = document.querySelectorAll('.timeline-item');
+            
+            // Check if an element is in viewport
+            function isElementInViewport(el) {
+                const rect = el.getBoundingClientRect();
+                return (
+                    rect.top >= 0 &&
+                    rect.left >= 0 &&
+                    rect.bottom <= (window.innerHeight || document.documentElement.clientHeight) &&
+                    rect.right <= (window.innerWidth || document.documentElement.clientWidth)
+                );
+            }
+            
+            // Add active class to timeline items in viewport
+            function handleScroll() {
+                timelineItems.forEach(item => {
+                    if (isElementInViewport(item)) {
+                        item.classList.add('active');
+                    }
+                });
+            }
+            
+            // Call on load and scroll
+            window.addEventListener('load', handleScroll);
+            window.addEventListener('scroll', handleScroll);
+        });
+    </script>
+</body>
+</html>

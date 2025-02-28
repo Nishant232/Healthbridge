@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Patients List</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+</head>
+<body>
+    <div class="flex-container">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-content">
+                <h1 class="header-title">HealthBridge Provider Portal</h1>
+                <div class="user-controls">
+                    <button class="logout-btn" onclick="window.location.href='/logout'">Log Out</button>
+                </div>
+            </div>
+        </header>
+    <div class="container">
+        <!-- Doctor Information -->
+        <div class="row">
+            <div class="col-md-6">
+                <h1 class="mt-5">Doctor Information</h1>
+                <p><strong>Name:</strong> {{ doctor.name }}</p>
+                <p><strong>Specialty:</strong> {{ doctor.specialty }}</p>
+                <p><strong>Location:</strong> {{ doctor.location }}</p>
+            </div>
+        </div>
+    </div>
+    <div class="container">
+        <h1 class="mt-5">Patients List</h1>
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Gender</th>
+                    <th>MRN</th>
+                    <th>Allergies</th>
+                    <th>Date of Birth</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for patient in patients %}
+                <tr onclick="window.location.href='/patient/{{ patient.mrn }}'">
+                    <td>{{ patient.name }}</td>
+                    <td>{{ patient.gender }}</td>
+                    <td>{{ patient.mrn }}</td>
+                    <td>{{ patient.allergies }}</td>
+                    <td>{{ patient.dob }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</body>
+</html>

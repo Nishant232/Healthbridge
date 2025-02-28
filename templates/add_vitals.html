@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Record Vitals - HealthBridge</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        .back-btn {
+            display: inline-block;
+            margin-bottom: 20px;
+            color: #1a56db;
+            text-decoration: none;
+        }
+        
+        .back-btn i {
+            margin-right: 5px;
+        }
+        
+        .vitals-card {
+            background-color: white;
+            border-radius: 8px;
+            padding: 30px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        .patient-header {
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        
+        .patient-header h2 {
+            margin-top: 0;
+            margin-bottom: 5px;
+        }
+        
+        .patient-meta {
+            color: #6b7280;
+            font-size: 14px;
+        }
+        
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group.full-width {
+            grid-column: span 3;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+        
+        .form-control {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #d1d5db;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+        
+        .form-control:focus {
+            outline: none;
+            border-color: #1a56db;
+            box-shadow: 0 0 0 2px rgba(26, 86, 219, 0.2);
+        }
+        
+        .submit-btn {
+            background-color: #1a56db;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 4px;
+            font-size: 16px;
+            cursor: pointer;
+            display: block;
+            width: 100%;
+            margin-top: 20px;
+        }
+        
+        .submit-btn:hover {
+            background-color: #1e429f;
+        }
+        
+        .vitals-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .vitals-icon {
+            font-size: 36px;
+            color: #1a56db;
+        }
+        
+        .unit-label {
+            font-size: 12px;
+            color: #6b7280;
+            margin-top: 4px;
+        }
+        
+        .reference-ranges {
+            background-color: #f9fafb;
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .reference-ranges h3 {
+            margin-top: 0;
+            margin-bottom: 10px;
+            font-size: 16px;
+            color: #4b5563;
+        }
+        
+        .reference-ranges ul {
+            margin: 0;
+            padding-left: 20px;
+            font-size: 14px;
+            color: #6b7280;
+        }
+        
+        .reference-ranges li {
+            margin-bottom: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="flex-container">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-content">
+                <h1 class="header-title">HealthBridge Provider Portal</h1>
+                <div class="user-controls">
+                    <button class="logout-btn" onclick="window.location.href='/logout'">Log Out</button>
+                </div>
+            </div>
+        </header>
+        
+        <main class="main-content">
+            <a href="{{ url_for('patient', mrn=patient.mrn) }}" class="back-btn">
+                <i class="fas fa-arrow-left"></i> Back to Patient Record
+            </a>
+            
+            <div class="vitals-card">
+                <div class="vitals-header">
+                    <h1>Record Vital Signs</h1>
+                    <div class="vitals-icon">
+                        <i class="fas fa-heartbeat"></i>
+                    </div>
+                </div>
+                
+                <div class="patient-header">
+                    <h2>{{ patient.name }}</h2>
+                    <div class="patient-meta">
+                        MRN: {{ patient.mrn }} | DOB: {{ patient.dob }} | Gender: {{ patient.gender }}
+                    </div>
+                </div>
+                
+                <form action="{{ url_for('add_vitals', mrn=patient.mrn) }}" method="POST">
+                    <div class="form-group full-width">
+                        <label for="date">Date and Time</label>
+                        <input type="datetime-local" id="date" name="date" class="form-control" required>
+                    </div>
+                    
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="bp">Blood Pressure</label>
+                            <input type="text" id="bp" name="bp" class="form-control" placeholder="120/80" required>
+                            <div class="unit-label">mmHg</div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="pulse">Heart Rate</label>
+                            <input type="number" id="pulse" name="pulse" min="0" max="300" class="form-control" required>
+                            <div class="unit-label">beats per minute</div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="temp">Temperature</label>
+                            <input type="number" id="temp" name="temp" step="0.1" min="90" max="110" class="form-control" required>
+                            <div class="unit-label">°F</div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="weight">Weight</label>
+                            <input type="number" id="weight" name="weight" step="0.1" min="0" class="form-control" required>
+                            <div class="unit-label">lbs</div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="resp">Respiratory Rate</label>
+                            <input type="number" id="resp" name="resp" min="0" max="100" class="form-control">
+                            <div class="unit-label">breaths per minute</div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="glucose">Blood Glucose</label>
+                            <input type="number" id="glucose" name="glucose" min="0" max="1000" class="form-control">
+                            <div class="unit-label">mg/dL</div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="o2sat">Oxygen Saturation</label>
+                            <input type="number" id="o2sat" name="o2sat" min="0" max="100" class="form-control">
+                            <div class="unit-label">%</div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="pain">Pain Level</label>
+                            <input type="number" id="pain" name="pain" min="0" max="10" class="form-control">
+                            <div class="unit-label">0-10 scale</div>
+                        </div>
+                    </div>
+                    
+                    <div class="reference-ranges">
+                        <h3>Normal Reference Ranges:</h3>
+                        <ul>
+                            <li>Blood Pressure: 90/60 - 120/80 mmHg</li>
+                            <li>Heart Rate: 60 - 100 beats per minute</li>
+                            <li>Temperature: 97.8 - 99.1°F</li>
+                            <li>Respiratory Rate: 12 - 20 breaths per minute</li>
+                            <li>Blood Glucose (fasting): 70 - 100 mg/dL</li>
+                            <li>Oxygen Saturation: ≥ 95%</li>
+                        </ul>
+                    </div>
+                    
+                    <button type="submit" class="submit-btn">Save Vital Signs</button>
+                </form>
+            </div>
+        </main>
+        
+        <!-- Footer -->
+        <footer class="footer">
+            HealthBridge Interoperability Platform v1.0 | © 2025
+        </footer>
+    </div>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Set current date and time by default
+            const now = new Date();
+            const dateField = document.getElementById('date');
+            if (dateField) {
+                // Format date and time for datetime-local input
+                const year = now.getFullYear();
+                const month = String(now.getMonth() + 1).padStart(2, '0');
+                const day = String(now.getDate()).padStart(2, '0');
+                const hours = String(now.getHours()).padStart(2, '0');
+                const minutes = String(now.getMinutes()).padStart(2, '0');
+                
+                dateField.value = `${year}-${month}-${day}T${hours}:${minutes}`;
+            }
+        });
+    </script>
+</body>
+</html>
