@@ -676,4 +676,4 @@ def get_patients_by_doctor(doctor_name):
     return jsonify(patients_data)
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(debug=True, host='0.0.0.0')
